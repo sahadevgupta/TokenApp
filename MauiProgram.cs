@@ -65,7 +65,12 @@ namespace TokenApp
             builder.Logging.AddDebug();
 #endif
 
-            return builder.Build();
-        }
-    }
-}
+            #if ANDROID
+                        // Register Android-specific printer service implementation
+                        builder.Services.AddSingleton<TokenApp.Interfaces.IPrinterService, TokenApp.Platforms.Android.Printer.AndroidPrinterService>();
+            #endif
+
+                        return builder.Build();
+                    }
+                }
+            }

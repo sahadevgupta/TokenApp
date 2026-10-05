@@ -441,4 +441,12 @@
                 Value="{StaticResource PrimaryColor}"/>
     </Style>
 
+	<Style TargetType="Label"
+           x:Key="SupportLabelStyleBlackRegular">
+		<Setter Property="FontSize"
+                Value="12"/>
+		<Setter Property="FontFamily"
+                Value="GeistRegular"/>
+	</Style>
+
 </ResourceDictionary>

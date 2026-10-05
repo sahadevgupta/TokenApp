@@ -89,10 +89,7 @@
 	</ItemGroup>
 	
 	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-    <AndroidLibrary Include="Platforms\Android\Printer\PrinterSdk.aar" />
+    <AndroidLibrary Include="Platforms\Android\Printer\printer-lib-3.5.8.aar" />
 </ItemGroup>
-	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-		<AndroidLibrary Include="Platforms\Android\Printer\PrinterSdk.aar" />
-	printer-lib-3.5.8
-
+	
 </Project>
