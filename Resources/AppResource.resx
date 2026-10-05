@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+	<value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+	<value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+	<value>System.Resources.ResXResourceReader, System.Windows.Forms, ...</value>
+  </resheader>
+  <resheader name="writer">
+	<value>System.Resources.ResXResourceWriter, System.Windows.Forms, ...</value>
+  </resheader>
+  <data name="AppTitleLine1" xml:space="preserve">
+	<value>श्री काला गोरा भैरव धाम</value>
+  </data>
+  <data name="AppSubtitle" xml:space="preserve">
+	<value>टोंडगड (ब्यावर)</value>
+  </data>
+  <data name="AppNote" xml:space="preserve">
+	<value>श्री भैरव जी महाराज प्रबंधन एवं सेवा पोर्टल</value>
+  </data>
+  <data name="AppNoteAlert" xml:space="preserve">
+	<value>केवल अधिकृत व्यक्ति ही लॉगिन करें ।</value>
+  </data>
+  <data name="Card1Title" xml:space="preserve">
+	<value>धाम परिसर</value>
+  </data>
+  <data name="Card2Title" xml:space="preserve">
+	<value>गणेश दर्शन</value>
+  </data>
+  <data name="UsernamePlaceholder" xml:space="preserve">
+	<value>यूजरनेम दर्ज करें</value>
+  </data>
+  <data name="PasswordPlaceholder" xml:space="preserve">
+	<value>पासवर्ड दर्ज करें</value>
+  </data>
+  <data name="RememberMe" xml:space="preserve">
+	<value>मुझे याद रखें</value>
+  </data>
+  <data name="ForgotPassword" xml:space="preserve">
+	<value>पासवर्ड भूल गए?</value>
+  </data>
+  <data name="LoginButton" xml:space="preserve">
+	<value>लॉगिन करें</value>
+  </data>
+</root>
