@@ -4,7 +4,8 @@
              xmlns:res="clr-namespace:TokenApp.Resources"
              xmlns:vm="clr-namespace:TokenApp.ViewModels"
              x:Class="TokenApp.Views.LoginPage"
-             BackgroundColor="#FFF7EE"
+             xmlns:controls="clr-namespace:TokenApp.Controls"
+             BackgroundColor="WhiteSmoke"
              Title="">
     <ContentPage.BindingContext>
         <vm:LoginViewModel />
@@ -13,14 +14,15 @@
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="16">
             <!-- Logo -->
-            <Grid HorizontalOptions="Center" Margin="0,8,0,0">
-                <Frame WidthRequest="86" HeightRequest="86" CornerRadius="43" HasShadow="False" BackgroundColor="#FCE9E7" HorizontalOptions="Center">
-                    <Grid>
-                        <Ellipse Fill="#F7D9D8" />
-                        <Label Text="○" FontSize="36" HorizontalOptions="Center" VerticalOptions="Center" TextColor="#C93028" />
-                    </Grid>
-                </Frame>
-            </Grid>
+           
+                <Border WidthRequest="100" HeightRequest="100" 
+                        HorizontalOptions="Center" Margin="0,8,0,0" Padding="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="50" />
+                    </Border.StrokeShape>
+                    <Image Source="logo"/>
+                </Border>
+            
 
             <!-- Title -->
             <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
@@ -29,64 +31,69 @@
                 <Label Text="{x:Static res:AppResource.AppNote}" FontSize="12" TextColor="#7C6A6A" HorizontalOptions="Center" />
             </VerticalStackLayout>
 
-            <Frame CornerRadius="10" BackgroundColor="#FFF1EE" Padding="12" HasShadow="False">
+            <Border BackgroundColor="#FFF1EE" Padding="12">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10" />
+                </Border.StrokeShape>
                 <Label Text="{x:Static res:AppResource.AppNoteAlert}" FontSize="13" TextColor="#B84B4B" HorizontalOptions="Center" />
-            </Frame>
-
-            <!-- Image cards -->
-            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto" ColumnSpacing="12">
-                <Frame CornerRadius="10" HasShadow="False" BackgroundColor="#FFFFFF" HeightRequest="96">
-                    <Grid>
-                        <Image Source="dotnet_bot.png" Aspect="AspectFill" />
-                        <BoxView BackgroundColor="#80000000" />
-                        <Label Text="{x:Static res:AppResource.Card1Title}" TextColor="White" HorizontalOptions="Start" VerticalOptions="End" Margin="8" />
-                    </Grid>
-                </Frame>
-                <Frame CornerRadius="10" HasShadow="False" BackgroundColor="#FFFFFF" HeightRequest="96">
-                    <Grid>
-                        <Image Source="dotnet_bot.png" Aspect="AspectFill" />
-                        <BoxView BackgroundColor="#80000000" />
-                        <Label Text="{x:Static res:AppResource.Card2Title}" TextColor="White" HorizontalOptions="Start" VerticalOptions="End" Margin="8" />
-                    </Grid>
-                </Frame>
-            </Grid>
-
+            </Border>
+            
+            
             <!-- Card containing inputs -->
-            <Frame CornerRadius="10" BackgroundColor="#FFFFFF" Padding="12" HasShadow="False">
+            <!--<Border BackgroundColor="#FFFFFF" Padding="12">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10" />
+                </Border.StrokeShape>
                 <VerticalStackLayout Spacing="12">
-                    <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="8">
+                    --><!--<Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="8">
                         <Label Grid.ColumnSpan="2" Text="{x:Static res:AppResource.UsernamePlaceholder}" FontSize="14" TextColor="#6B6B6B" />
 
-                        <Frame Grid.Row="1" Grid.ColumnSpan="2" CornerRadius="8" BackgroundColor="#F8F6F6" Padding="8" HasShadow="False">
+                        <Entry Placeholder="{x:Static res:AppResource.UsernamePlaceholder}"/>
+
+                        --><!--<Border Grid.Row="1" Grid.ColumnSpan="2" BackgroundColor="#F8F6F6" Padding="8">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
                             <Grid ColumnDefinitions="Auto, *" VerticalOptions="Center">
                                 <Label Text="🔒" FontSize="16" VerticalOptions="Center" />
                                 <Entry Grid.Column="1" Text="" Placeholder="{x:Static res:AppResource.UsernamePlaceholder}" TextColor="#333" BackgroundColor="Transparent" VerticalOptions="Center" />
                             </Grid>
-                        </Frame>
+                        </Border>--><!--
 
                         <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{x:Static res:AppResource.PasswordPlaceholder}" FontSize="14" TextColor="#6B6B6B" />
 
-                        <Frame Grid.Row="3" Grid.ColumnSpan="2" CornerRadius="8" BackgroundColor="#F8F6F6" Padding="8" HasShadow="False">
+                        <Border Grid.Row="3" Grid.ColumnSpan="2" BackgroundColor="#F8F6F6" Padding="8">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
                             <Grid ColumnDefinitions="Auto, *, Auto" VerticalOptions="Center">
                                 <Label Text="🔒" FontSize="16" VerticalOptions="Center" />
                                 <Entry Grid.Column="1" IsPassword="True" Placeholder="{x:Static res:AppResource.PasswordPlaceholder}" BackgroundColor="Transparent" TextColor="#333" />
                                 <Button Grid.Column="2" Text="👁" BackgroundColor="Transparent" BorderColor="Transparent" />
                             </Grid>
-                        </Frame>
+                        </Border>
 
                         <Grid ColumnDefinitions="Auto, *" Grid.Row="4" Padding="0,4,0,0">
                             <Switch IsToggled="{Binding RememberMe}" HorizontalOptions="Start" />
                             <Label Text="{x:Static res:AppResource.RememberMe}" HorizontalOptions="Start" VerticalOptions="Center" Margin="8,0,0,0" />
                             <Label Text="{x:Static res:AppResource.ForgotPassword}" TextColor="#C92A2A" HorizontalOptions="End" VerticalOptions="Center" />
                         </Grid>
-                    </Grid>
+                    </Grid>--><!--
+
+                    <controls:ExtendedEntry Title="{x:Static res:AppResource.UsernamePlaceholder}"/>
+                    <controls:ExtendedEntry Title="{x:Static res:AppResource.PasswordPlaceholder}"/>
+
                 </VerticalStackLayout>
-            </Frame>
+            </Border>-->
+
+            <controls:ExtendedEntry Title="{x:Static res:AppResource.Username}"
+                                    PlaceholderText="{x:Static res:AppResource.UsernamePlaceholder}"/>
+            <controls:ExtendedEntry Title="{x:Static res:AppResource.Password}"
+                                    PlaceholderText="{x:Static res:AppResource.UsernamePlaceholder}"/>
 
             <!-- Login button -->
             <Button Text="{x:Static res:AppResource.LoginButton}" BackgroundColor="#B71C1C" TextColor="White" CornerRadius="10" HeightRequest="52" Command="{Binding LoginCommand}" />
 
-            <BoxView HeightRequest="24" Color="Transparent" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

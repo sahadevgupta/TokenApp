@@ -1,52 +1,45 @@
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using TokenApp.Resources;
 using Microsoft.Maui.Controls;
 
 namespace TokenApp.ViewModels
 {
-    public class LoginViewModel : INotifyPropertyChanged
+    public partial class LoginViewModel : BaseViewModel
     {
+        [ObservableProperty]
         string username;
+
+        [ObservableProperty]
         string password;
-        bool isBusy;
+
+        [ObservableProperty]
         bool rememberMe;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public string Username { get => username; set { username = value; OnPropertyChanged(); } }
-        public string Password { get => password; set { password = value; OnPropertyChanged(); } }
-        public bool IsBusy { get => isBusy; set { isBusy = value; OnPropertyChanged(); } }
-        public bool RememberMe { get => rememberMe; set { rememberMe = value; OnPropertyChanged(); } }
-
-        public ICommand LoginCommand { get; }
-        public ICommand ForgotPasswordCommand { get; }
 
         public LoginViewModel()
         {
-            LoginCommand = new Command(async () => await ExecuteLogin());
-            ForgotPasswordCommand = new Command(async () => await ExecuteForgot());
         }
 
-        async Task ExecuteLogin()
+        [RelayCommand(AllowConcurrentExecutions = false)]
+        async Task Login()
         {
             if (IsBusy) return;
             IsBusy = true;
-            // Placeholder: integrate with existing authentication service if available
+
+            // TODO: Replace with your real authentication call
             await Task.Delay(800);
+
             IsBusy = false;
 
-            // On success, navigate or raise event
+            // On success navigate (uncomment and update route if needed)
             // await Shell.Current.GoToAsync("/home");
         }
 
-        async Task ExecuteForgot()
+        [RelayCommand(AllowConcurrentExecutions =false)]
+        async Task ForgotPassword()
         {
-            // Navigate to forgot password or show dialog
-            await Shell.Current.DisplayAlert("", TokenApp.Resources.AppResource.ForgotPassword, "OK");
+            await Shell.Current.DisplayAlert(string.Empty, AppResource.ForgotPassword, "OK");
         }
-
-        void OnPropertyChanged([CallerMemberName] string name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }
