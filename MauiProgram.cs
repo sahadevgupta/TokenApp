@@ -3,6 +3,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Handlers;
 using Microsoft.Maui.Platform;
 using TokenApp.Controls;
+using TokenApp.Services;
+using TokenApp.Services.Data;
+using TokenApp.Services.Database;
+using TokenApp.ViewModels;
+using TokenApp.Views;
 
 namespace TokenApp
 {
@@ -40,7 +45,9 @@ namespace TokenApp
 #if ANDROID
                     handlers.AddHandler<BorderlessEntry, TokenApp.Platforms.Android.Handlers.PlainEntryHandler>();
 #endif
-                }); ;
+                })
+                // Register Services
+                .RegisterAppServices();
 
             EntryHandler.Mapper.AppendToMapping(nameof(BorderlessEntry), (handler, view) =>
             {
@@ -65,12 +72,33 @@ namespace TokenApp
             builder.Logging.AddDebug();
 #endif
 
-            #if ANDROID
-                        // Register Android-specific printer service implementation
-                        builder.Services.AddSingleton<TokenApp.Interfaces.IPrinterService, TokenApp.Platforms.Android.Printer.AndroidPrinterService>();
-            #endif
+#if ANDROID
+            // Register Android-specific printer service implementation
+            builder.Services.AddSingleton<TokenApp.Interfaces.IPrinterService, TokenApp.Platforms.Android.Printer.AndroidPrinterService>();
+#endif
 
-                        return builder.Build();
-                    }
-                }
-            }
+            return builder.Build();
+        }
+
+        private static MauiAppBuilder RegisterAppServices(this MauiAppBuilder builder)
+        {
+            // Register Database
+            builder.Services.AddSingleton(AppDbContext.Instance);
+
+            // Register Data Services
+            builder.Services.AddSingleton<ITokenMapper, TokenMapper>();
+            builder.Services.AddSingleton<ITokenRepository, TokenRepository>();
+
+            // Register ViewModels
+            builder.Services.AddSingleton<TokenHistoryViewModel>();
+
+            // Register Views
+            builder.Services.AddSingleton<TokenHistoryPage>();
+
+            // Initialize database on startup
+            builder.Services.AddSingleton<LazyDbInitializer>();
+
+            return builder;
+        }
+    }
+}

@@ -12,4 +12,9 @@
         ContentTemplate="{DataTemplate views:LoginPage}"
         Route="MainPage" />
 
+    <ShellContent
+        Title="History/Queue"
+        ContentTemplate="{DataTemplate views:TokenHistoryPage}"
+        Route="TokenHistory" />
+
 </Shell>

@@ -156,4 +156,64 @@
   <data name="Password" xml:space="preserve">
     <value>पासवर्ड</value>
   </data>
+  <data name="TokenHistoryTitle" xml:space="preserve">
+    <value>टोकन इतिहास</value>
+  </data>
+  <data name="SearchTokenPlaceholder" xml:space="preserve">
+    <value>टोकन # या तारीख खोजें</value>
+  </data>
+  <data name="AllTokens" xml:space="preserve">
+    <value>सभी</value>
+  </data>
+  <data name="YellowTokens" xml:space="preserve">
+    <value>पीले टोकन</value>
+  </data>
+  <data name="RedTokens" xml:space="preserve">
+    <value>लाल टोकन</value>
+  </data>
+  <data name="EmergencyTokens" xml:space="preserve">
+    <value>आपातकालीन टोकन</value>
+  </data>
+  <data name="TodayButton" xml:space="preserve">
+    <value>आज</value>
+  </data>
+  <data name="ReprintButton" xml:space="preserve">
+    <value>पुनः प्रिंट करें</value>
+  </data>
+  <data name="DetailsButton" xml:space="preserve">
+    <value>विवरण</value>
+  </data>
+  <data name="EscortButton" xml:space="preserve">
+    <value>एस्कॉर्ट</value>
+  </data>
+  <data name="ExportCSVButton" xml:space="preserve">
+    <value>CSV निर्यात करें</value>
+  </data>
+  <data name="PrintSummaryButton" xml:space="preserve">
+    <value>सारांश प्रिंट करें</value>
+  </data>
+  <data name="TokensDistributed" xml:space="preserve">
+    <value>वितरित टोकन</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>कुल</value>
+  </data>
+  <data name="NoTokensFound" xml:space="preserve">
+    <value>कोई टोकन नहीं मिला</value>
+  </data>
+  <data name="LoadingTokens" xml:space="preserve">
+    <value>टोकन लोड हो रहे हैं...</value>
+  </data>
+  <data name="TokenGiven" xml:space="preserve">
+    <value>टोकन दिया गया</value>
+  </data>
+  <data name="SanctumEntry" xml:space="preserve">
+    <value>गर्भगृह प्रवेश</value>
+  </data>
+  <data name="VIPEscort" xml:space="preserve">
+    <value>वीआईपी / एस्कॉर्ट</value>
+  </data>
+  <data name="Pending" xml:space="preserve">
+    <value>लंबित</value>
+  </data>
 </root>

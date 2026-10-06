@@ -45,4 +45,35 @@
     <Color x:Key="LightGray">#E0E0E0</Color>
     <Color x:Key="BorderColor">#D0D0D0</Color>
     <Color x:Key="PrimaryColor">#0E1826</Color>
+
+    <!-- Token Type Colors -->
+    <Color x:Key="TokenYellow">#FFD700</Color>
+    <Color x:Key="TokenYellowLight">#FFF8DC</Color>
+    <Color x:Key="TokenYellowDark">#DAA520</Color>
+
+    <Color x:Key="TokenRed">#DC143C</Color>
+    <Color x:Key="TokenRedLight">#FFB6C1</Color>
+    <Color x:Key="TokenRedDark">#8B0000</Color>
+
+    <Color x:Key="TokenEmergency">#7B68EE</Color>
+    <Color x:Key="TokenEmergencyLight">#9F8FDF</Color>
+    <Color x:Key="TokenEmergencyDark">#4B3FA0</Color>
+
+    <!-- Status Colors -->
+    <Color x:Key="StatusGiven">#00C853</Color>
+    <Color x:Key="StatusSanctum">#CC5500</Color>
+    <Color x:Key="StatusVip">#6A1B9A</Color>
+    <Color x:Key="StatusPending">#FFB300</Color>
+
+    <!-- Card Background -->
+    <Color x:Key="CardBackground">#2A2D3A</Color>
+    <Color x:Key="CardBackgroundLight">#3A3D4A</Color>
+
+    <!-- Brush versions for token colors -->
+    <SolidColorBrush x:Key="TokenYellowBrush" Color="{StaticResource TokenYellow}"/>
+    <SolidColorBrush x:Key="TokenRedBrush" Color="{StaticResource TokenRed}"/>
+    <SolidColorBrush x:Key="TokenEmergencyBrush" Color="{StaticResource TokenEmergency}"/>
+    <SolidColorBrush x:Key="StatusGivenBrush" Color="{StaticResource StatusGiven}"/>
+    <SolidColorBrush x:Key="StatusSanctumBrush" Color="{StaticResource StatusSanctum}"/>
+    <SolidColorBrush x:Key="StatusVipBrush" Color="{StaticResource StatusVip}"/>
 </ResourceDictionary>

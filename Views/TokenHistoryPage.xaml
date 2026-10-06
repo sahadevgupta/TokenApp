@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:TokenApp.Converters"
+             xmlns:system="clr-namespace:System;assembly=netstandard"
+             x:Class="TokenApp.Views.TokenHistoryPage"
+             Title="History/Queue"
+             BackgroundColor="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray950}}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <local:TokenTypeNameConverter x:Key="TokenTypeNameConverter" />
+            <local:TokenTypeEmojiConverter x:Key="TokenTypeEmojiConverter" />
+            <local:TokenStatusNameConverter x:Key="TokenStatusNameConverter" />
+            <local:TokenStatusColorConverter x:Key="TokenStatusColorConverter" />
+            <local:TokenActionVisibilityConverter x:Key="TokenActionVisibilityConverter" />
+            <local:IsNotNullConverter x:Key="IsNotNullConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="0">
+        <!-- Header Section -->
+        <VerticalStackLayout Grid.Row="0" Padding="16,12" Spacing="0" BackgroundColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource OffBlack}}">
+            <Label Text="श्री काला गोरा भैरव धाम" FontSize="16" FontFamily="SpaceGroteskSemibold" TextColor="{AppThemeBinding Light={StaticResource TokenYellow}, Dark={StaticResource TokenYellow}}" />
+            <Label Text="BHAIRAV DHAM COUNTER • HISTORY/QUEUE" FontSize="11" FontFamily="GeistRegular" TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray400}}" />
+        </VerticalStackLayout>
+
+        <!-- Main Content -->
+        <ScrollView Grid.Row="1" Padding="12,16,12,0">
+            <VerticalStackLayout Spacing="12">
+                <!-- Search and Date Filter Section -->
+                <HorizontalStackLayout Spacing="8" Margin="0,0,0,12">
+                    <Border Style="{StaticResource SearchBoxStyle}" HorizontalOptions="FillAndExpand">
+                        <Entry x:Name="SearchEntry"
+                               Style="{StaticResource SearchEntryStyle}"
+                               Placeholder="Search token # or date"
+                               Text="{Binding SearchQuery}"
+                               ReturnCommand="{Binding SearchTokensCommand}"/>
+                    </Border>
+                    <Border Style="{StaticResource SearchBoxStyle}" WidthRequest="100">
+                        <DatePicker Date="{Binding SelectedDate}"
+                                    TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"
+                                    Format="dd-MM-yyyy"
+                                    FontFamily="GeistRegular"
+                                    FontSize="13"/>
+                    </Border>
+                    <Button Text="Today" 
+                            Command="{Binding ClearFiltersCommand}"
+                            Style="{StaticResource FilterChipStyle}"
+                            WidthRequest="70"
+                            Padding="8,6"/>
+                </HorizontalStackLayout>
+
+                <!-- Token Type Filter Chips -->
+                <HorizontalStackLayout Spacing="8" Margin="0,0,0,12">
+                    <Button x:Name="AllButton"
+                            Text="All (25)"
+                            Style="{StaticResource FilterChipStyle}"
+                            Command="{Binding FilterAllCommand}"
+                            Padding="14,6"/>
+                    <Button x:Name="YellowButton"
+                            Text="🟡 Yellow 16"
+                            Style="{StaticResource FilterChipStyle}"
+                            Command="{Binding FilterYellowCommand}"
+                            Padding="14,6"/>
+                    <Button x:Name="RedButton"
+                            Text="🔴 Red 7"
+                            Style="{StaticResource FilterChipStyle}"
+                            Command="{Binding FilterRedCommand}"
+                            Padding="14,6"/>
+                    <Button x:Name="EmergencyButton"
+                            Text="⚡ Emerg..."
+                            Style="{StaticResource FilterChipStyle}"
+                            Command="{Binding FilterEmergencyCommand}"
+                            Padding="14,6"/>
+                </HorizontalStackLayout>
+
+                <!-- Token List -->
+                <CollectionView ItemsSource="{Binding FilteredTokens}"
+                                SelectionMode="Single"
+                                SelectionChangedCommand="{Binding ShowTokenDetailsCommand}"
+                                SelectionChangedCommandParameter="{Binding SelectedItem, Source={RelativeSource Self}}"
+                                Margin="0,0,0,16">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <!-- Token Card -->
+                            <Border Style="{StaticResource TokenCardStyle}">
+                                <Grid RowDefinitions="Auto,Auto,*,Auto" ColumnDefinitions="Auto,*" RowSpacing="8" ColumnSpacing="12">
+                                    <!-- Token Number (Left Side) -->
+                                    <Label Grid.Row="0" Grid.RowSpan="4" Grid.Column="0"
+                                           Text="{Binding TokenNumber, StringFormat='#{0}'}"
+                                           Style="{StaticResource TokenNumberStyle}"
+                                           VerticalOptions="Start"
+                                           WidthRequest="50"/>
+
+                                    <!-- Token Type Label and DateTime (Top Right) -->
+                                    <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="8" HorizontalOptions="Fill">
+                                        <Label Text="{Binding Type, Converter={StaticResource TokenTypeNameConverter}}"
+                                               Style="{StaticResource TokenTypeLabelStyle}"
+                                               VerticalOptions="Center"
+                                               HorizontalOptions="StartAndExpand"/>
+                                        <Label Text="{Binding DateTime, StringFormat='{0:dd-MM-yyyy • hh:mm tt}'}"
+                                               Style="{StaticResource TokenDateTimeStyle}"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center"/>
+                                    </HorizontalStackLayout>
+
+                                    <!-- Status Badge (Row 1) -->
+                                    <Border Grid.Row="1" Grid.Column="1"
+                                            Style="{StaticResource StatusBadgeStyle}"
+                                            BackgroundColor="{Binding Status, Converter={StaticResource TokenStatusColorConverter}}"
+                                            HorizontalOptions="Start">
+                                        <Label Text="{Binding Status, Converter={StaticResource TokenStatusNameConverter}}"
+                                               Style="{StaticResource StatusBadgeLabelStyle}"/>
+                                    </Border>
+
+                                    <!-- Location/Batch/Escort Info (Row 2) -->
+                                    <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="6">
+                                        <Label x:Name="LocationLabel"
+                                               Text="{Binding Location}"
+                                               Style="{StaticResource TokenInfoLabelStyle}"
+                                               IsVisible="{Binding Location, Converter={StaticResource IsNotNullConverter}}"/>
+
+                                        <Label x:Name="BatchLabel"
+                                               Text="{Binding BatchNumber}"
+                                               Style="{StaticResource TokenInfoLabelStyle}"
+                                               IsVisible="{Binding BatchNumber, Converter={StaticResource IsNotNullConverter}}"/>
+
+                                        <Label x:Name="EscortLabel"
+                                               Text="{Binding Escort}"
+                                               Style="{StaticResource TokenInfoLabelStyle}"
+                                               IsVisible="{Binding Escort, Converter={StaticResource IsNotNullConverter}}"/>
+                                    </VerticalStackLayout>
+
+                                    <!-- Action Buttons (Bottom Row) -->
+                                    <HorizontalStackLayout Grid.Row="3" Grid.Column="1" 
+                                                          Spacing="8" Margin="0,8,0,0">
+                                        <Button x:Name="ReprintButton"
+                                                Text="🖨 Reprint"
+                                                Style="{StaticResource ActionButtonStyle}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ReprintTokenCommand}"
+                                                CommandParameter="{Binding .}"
+                                                IsVisible="{Binding AvailableActions, Converter={StaticResource TokenActionVisibilityConverter}, ConverterParameter='Reprint'}"/>
+
+                                        <Button x:Name="DetailsButton"
+                                                Text="ℹ️ Details"
+                                                Style="{StaticResource ActionButtonStyle}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ShowTokenDetailsCommand}"
+                                                CommandParameter="{Binding .}"
+                                                IsVisible="{Binding AvailableActions, Converter={StaticResource TokenActionVisibilityConverter}, ConverterParameter='Details'}"/>
+
+                                        <Button x:Name="EscortButton"
+                                                Text="👥 Escort"
+                                                Style="{StaticResource ActionButtonStyle}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EscortTokenCommand}"
+                                                CommandParameter="{Binding .}"
+                                                IsVisible="{Binding AvailableActions, Converter={StaticResource TokenActionVisibilityConverter}, ConverterParameter='Escort'}"/>
+                                    </HorizontalStackLayout>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Bottom Actions Section -->
+        <Border Grid.Row="2" 
+                BackgroundColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource OffBlack}}"
+                StrokeThickness="0"
+                Padding="12,12">
+            <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
+                <VerticalStackLayout HorizontalOptions="Center" Spacing="0">
+                    <Label Text="Tokens" FontSize="13" FontFamily="GeistMedium" TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}" HorizontalTextAlignment="Center"/>
+                    <Label Text="Distributed" FontSize="12" FontFamily="GeistRegular" TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray400}}" HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
+                <Label Text="25" FontSize="18" FontFamily="SpaceGroteskSemibold" TextColor="{AppThemeBinding Light={StaticResource TokenYellow}, Dark={StaticResource TokenYellow}}" VerticalOptions="Center"/>
+                <Label Text="Total" FontSize="12" FontFamily="GeistMedium" TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray400}}" VerticalOptions="Center"/>
+                <BoxView WidthRequest="1" Color="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray500}}"/>
+                <Button x:Name="SearchButton" 
+                        Text="🔍"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Padding="8,4"
+                        FontSize="16"/>
+                <BoxView WidthRequest="1" Color="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray500}}"/>
+                <Button x:Name="CalendarButton"
+                        Text="📅"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Padding="8,4"
+                        FontSize="16"/>
+
+                <StackLayout Spacing="8" HorizontalOptions="EndAndExpand">
+                    <Button Text="📥 Export CSV" 
+                            Command="{Binding ExportTokensCommand}"
+                            TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"
+                            BackgroundColor="Transparent"
+                            FontSize="12"
+                            FontFamily="GeistRegular"
+                            Padding="8,4"
+                            MinimumHeightRequest="32"/>
+                    <Button Text="🖨 Print Summary" 
+                            Command="{Binding PrintSummaryCommand}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                            TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}"
+                            FontSize="12"
+                            FontFamily="GeistRegular"
+                            CornerRadius="6"
+                            Padding="12,6"
+                            MinimumHeightRequest="32"/>
+                </StackLayout>
+            </HorizontalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>

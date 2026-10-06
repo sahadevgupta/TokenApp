@@ -71,6 +71,7 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.110" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.12" />
 		<PackageReference Include="Sentry.Maui" Version="6.12.0" />
+		<PackageReference Include="sqlite-net-pcl" Version="1.11.285" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -91,5 +92,11 @@
 	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
     <AndroidLibrary Include="Platforms\Android\Printer\printer-lib-3.5.8.aar" />
 </ItemGroup>
+	
+	<ItemGroup>
+	  <MauiXaml Update="Views\TokenHistoryPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
 	
 </Project>

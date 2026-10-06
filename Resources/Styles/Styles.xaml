@@ -437,16 +437,137 @@
                 Value="14"/>
         <Setter Property="FontFamily"
                 Value="SpaceGroteskSemibold"/>
-        <Setter Property="TextColor"
-                Value="{StaticResource PrimaryColor}"/>
-    </Style>
+		<Setter Property="TextColor"
+				Value="{StaticResource PrimaryColor}"/>
+	</Style>
 
 	<Style TargetType="Label"
-           x:Key="SupportLabelStyleBlackRegular">
+		   x:Key="SupportLabelStyleBlackRegular">
 		<Setter Property="FontSize"
-                Value="12"/>
+				Value="12"/>
 		<Setter Property="FontFamily"
-                Value="GeistRegular"/>
+				Value="GeistRegular"/>
+	</Style>
+
+	<!-- Token History/Queue Styles -->
+
+	<!-- Token Card Styles -->
+	<Style TargetType="Border" x:Key="TokenCardStyle">
+		<Setter Property="StrokeShape" Value="RoundRectangle 12"/>
+		<Setter Property="StrokeThickness" Value="0"/>
+		<Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource CardBackground}, Dark={StaticResource CardBackground}}"/>
+		<Setter Property="Padding" Value="16"/>
+		<Setter Property="Margin" Value="0,0,0,12"/>
+	</Style>
+
+	<!-- Token Number/Label Style -->
+	<Style TargetType="Label" x:Key="TokenNumberStyle">
+		<Setter Property="FontSize" Value="28"/>
+		<Setter Property="FontFamily" Value="SpaceGroteskBold"/>
+		<Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TokenYellow}, Dark={StaticResource TokenYellow}}"/>
+		<Setter Property="Margin" Value="0"/>
+	</Style>
+
+	<!-- Token Type Label Style -->
+	<Style TargetType="Label" x:Key="TokenTypeLabelStyle">
+		<Setter Property="FontSize" Value="18"/>
+		<Setter Property="FontFamily" Value="SpaceGroteskSemibold"/>
+		<Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"/>
+		<Setter Property="Margin" Value="0"/>
+	</Style>
+
+	<!-- Token DateTime Style -->
+	<Style TargetType="Label" x:Key="TokenDateTimeStyle">
+		<Setter Property="FontSize" Value="12"/>
+		<Setter Property="FontFamily" Value="GeistRegular"/>
+		<Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray400}}"/>
+		<Setter Property="Margin" Value="0"/>
+	</Style>
+
+	<!-- Token Info Label Style -->
+	<Style TargetType="Label" x:Key="TokenInfoLabelStyle">
+		<Setter Property="FontSize" Value="13"/>
+		<Setter Property="FontFamily" Value="GeistRegular"/>
+		<Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"/>
+		<Setter Property="Margin" Value="0"/>
+	</Style>
+
+	<!-- Status Badge Style -->
+	<Style TargetType="Border" x:Key="StatusBadgeStyle">
+		<Setter Property="StrokeShape" Value="RoundRectangle 8"/>
+		<Setter Property="StrokeThickness" Value="0"/>
+		<Setter Property="Padding" Value="8,4"/>
+	</Style>
+
+	<Style TargetType="Label" x:Key="StatusBadgeLabelStyle">
+		<Setter Property="FontSize" Value="11"/>
+		<Setter Property="FontFamily" Value="GeistMedium"/>
+		<Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"/>
+		<Setter Property="Margin" Value="0"/>
+	</Style>
+
+	<!-- Filter Chip Style -->
+	<Style TargetType="Button" x:Key="FilterChipStyle">
+		<Setter Property="CornerRadius" Value="20"/>
+		<Setter Property="Padding" Value="12,6"/>
+		<Setter Property="FontSize" Value="13"/>
+		<Setter Property="FontFamily" Value="GeistMedium"/>
+		<Setter Property="BorderWidth" Value="1"/>
+		<Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray600}}"/>
+		<Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"/>
+		<Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray500}}"/>
+		<Setter Property="MinimumHeightRequest" Value="32"/>
+		<Setter Property="MinimumWidthRequest" Value="60"/>
+	</Style>
+
+	<Style TargetType="Button" x:Key="FilterChipSelectedStyle" BasedOn="{StaticResource FilterChipStyle}">
+		<Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"/>
+		<Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}"/>
+		<Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"/>
+	</Style>
+
+	<!-- Search Box Style -->
+	<Style TargetType="Border" x:Key="SearchBoxStyle">
+		<Setter Property="StrokeShape" Value="RoundRectangle 10"/>
+		<Setter Property="StrokeThickness" Value="1"/>
+		<Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray500}}"/>
+		<Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray600}}"/>
+		<Setter Property="Padding" Value="12"/>
+	</Style>
+
+	<Style TargetType="Entry" x:Key="SearchEntryStyle">
+		<Setter Property="FontSize" Value="14"/>
+		<Setter Property="FontFamily" Value="GeistRegular"/>
+		<Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"/>
+		<Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray400}}"/>
+		<Setter Property="BackgroundColor" Value="Transparent"/>
+	</Style>
+
+	<!-- Action Button Style -->
+	<Style TargetType="Button" x:Key="ActionButtonStyle">
+		<Setter Property="BackgroundColor" Value="Transparent"/>
+		<Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TokenYellow}, Dark={StaticResource TokenYellow}}"/>
+		<Setter Property="FontSize" Value="13"/>
+		<Setter Property="FontFamily" Value="GeistMedium"/>
+		<Setter Property="Padding" Value="8,4"/>
+		<Setter Property="MinimumHeightRequest" Value="32"/>
+		<Setter Property="MinimumWidthRequest" Value="50"/>
+	</Style>
+
+	<!-- Page Header Style -->
+	<Style TargetType="Label" x:Key="PageHeaderStyle">
+		<Setter Property="FontSize" Value="20"/>
+		<Setter Property="FontFamily" Value="SpaceGroteskSemibold"/>
+		<Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"/>
+		<Setter Property="Margin" Value="0"/>
+	</Style>
+
+	<!-- Page Subheader Style -->
+	<Style TargetType="Label" x:Key="PageSubheaderStyle">
+		<Setter Property="FontSize" Value="12"/>
+		<Setter Property="FontFamily" Value="GeistRegular"/>
+		<Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray400}}"/>
+		<Setter Property="Margin" Value="0"/>
 	</Style>
 
 </ResourceDictionary>
