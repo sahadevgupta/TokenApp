@@ -2,10 +2,16 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Handlers;
 using Microsoft.Maui.Platform;
+using Refit;
+using TokenApp.Constants;
 using TokenApp.Controls;
 using TokenApp.Services;
 using TokenApp.Services.Data;
+using TokenApp.Services.Api;
+using TokenApp.Services.Auth;
+using TokenApp.Services.Connectivity;
 using TokenApp.Services.Database;
+using TokenApp.Services.Sync;
 using TokenApp.ViewModels;
 using TokenApp.Views;
 
@@ -20,7 +26,8 @@ namespace TokenApp
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
                 .UseMauiApp<App>()
-                .UseSentry(options => {
+                .UseSentry(options =>
+                {
                     options.Dsn = "https://d7a70ae5f15d9c1567ccbe6ba0881147@o4510259879673856.ingest.de.sentry.io/4512204335743056";
 #if DEBUG
                     options.Debug = true;
@@ -62,7 +69,7 @@ namespace TokenApp
 #elif ANDROID
                     handler.PlatformView.InputType = Android.Text.InputTypes.TextVariationShortMessage;
                     handler.PlatformView.SetBackgroundColor(Colors.Transparent.ToPlatform());
-                    handler.PlatformView.Background = null; 
+                    handler.PlatformView.Background = null;
 
 #endif
                 }
@@ -85,11 +92,34 @@ namespace TokenApp
             // Register Database
             builder.Services.AddSingleton(AppDbContext.Instance);
 
+            // Auth / connectivity
+            builder.Services.AddSingleton<ISessionService, SessionService>();
+            builder.Services.AddSingleton<IConnectivity>(Connectivity.Current);
+            builder.Services.AddSingleton<IConnectivityService, ConnectivityService>();
+
+            // Refit client (single HttpClient pipeline for the whole backend)
+            builder.Services.AddTransient<AuthorizationHandler>();
+            builder.Services.AddTransient<SessionExpiryHandler>();
+            builder.Services
+                .AddRefitGeneratedClient<ITokenBackendApi>()
+                .ConfigureHttpClient(client =>
+                {
+                    client.BaseAddress = new Uri(ApiConstants.BaseUrl);
+                    client.Timeout = ApiConstants.RequestTimeout;
+                })
+                // Order matters: AuthorizationHandler must run first so SessionExpiryHandler sees the header.
+                .AddHttpMessageHandler<AuthorizationHandler>()
+                .AddHttpMessageHandler<SessionExpiryHandler>();
+            builder.Services.AddSingleton<ITokenApiService, TokenApiService>();
+
             // Register Data Services
+            builder.Services.AddSingleton<IAuthRepository, AuthRepository>();
+            builder.Services.AddSingleton<ITokenSyncCoordinator, TokenSyncCoordinator>();
             builder.Services.AddSingleton<ITokenMapper, TokenMapper>();
             builder.Services.AddSingleton<ITokenRepository, TokenRepository>();
 
             // Register ViewModels
+            builder.Services.AddTransient<LoginViewModel>();
             builder.Services.AddSingleton<TokenHistoryViewModel>();
 
             // Register Views

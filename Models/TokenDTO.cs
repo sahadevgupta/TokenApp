@@ -18,6 +18,15 @@ namespace TokenApp.Models
         public string? Escort { get; set; }
         public TokenActions AvailableActions { get; set; }
 
+        /// <summary>Id assigned by the backend; null until the token has been synced.</summary>
+        public int? RemoteId { get; set; }
+
+        /// <summary>False while the token is queued locally waiting to be sent to the backend.</summary>
+        public bool IsSynced { get; set; }
+
+        /// <summary>Set when the backend permanently rejected the token (e.g. 422); it will not be retried.</summary>
+        public string? SyncError { get; set; }
+
         /// <summary>
         /// Computed property: format DateTime as "dd-MM-yyyy • hh:mm AM/PM"
         /// </summary>

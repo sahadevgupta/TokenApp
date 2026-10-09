@@ -6,14 +6,14 @@
              xmlns:converters="clr-namespace:TokenApp.Converters"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Name="customEntryControlWithTitle">
-    
+
     <ContentView.Resources>
         <ResourceDictionary>
             <converters:IconSourceConverter x:Key="IconSourceConverter"/>
             <converters:IconTypeToVisibilityConverter x:Key="IconTypeToVisibilityConverter"/>
         </ResourceDictionary>
     </ContentView.Resources>
-    
+
     <Grid RowSpacing="2"
           RowDefinitions="Auto,Auto,48, Auto">
 
@@ -125,7 +125,8 @@
                                               TextChanged="borderlessEntry_TextChanged"
                                               Focused="InputEntry_Focused"
                                               VerticalOptions="Center"
-                                              PlaceholderColor="{StaticResource Gray200}">
+                                              PlaceholderColor="{StaticResource Gray200}"
+                                              TextColor="{StaticResource PrimaryColor}">
                         <controls:BorderlessEntry.Triggers>
                             <DataTrigger TargetType="controls:BorderlessEntry"
                                          Binding="{Binding Source={x:Reference rightimg}, Path=IsVisible}"

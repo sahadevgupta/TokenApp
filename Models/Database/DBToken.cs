@@ -46,6 +46,14 @@ namespace TokenApp.Models.Database
         [Column("sync_timestamp")]
         public long? SyncTimestamp { get; set; }
 
+        /// <summary>Id assigned by the backend once the token has been synced.</summary>
+        [Column("remote_id")]
+        public int? RemoteId { get; set; }
+
+        /// <summary>Permanent rejection reason from the backend; rows with an error are not retried.</summary>
+        [Column("sync_error")]
+        public string? SyncError { get; set; }
+
         // Helper properties for mapping
         [Ignore]
         public TokenType TypeEnum

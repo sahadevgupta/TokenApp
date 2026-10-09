@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Threading;
 using TokenApp.Models;
 
 namespace TokenApp.Services.Data
@@ -79,5 +80,25 @@ namespace TokenApp.Services.Data
         /// Clear all tokens (for testing/reset)
         /// </summary>
         Task ClearAllAsync();
+
+        /// <summary>
+        /// Offline-first token generation. The token is always saved locally first (so it can be
+        /// printed immediately and is never lost), then sent to the backend if online and signed in.
+        /// Success means the token is safely stored; check <see cref="TokenDTO.IsSynced"/> on the
+        /// result to see whether the backend already has it.
+        /// </summary>
+        Task<ServiceResult<TokenDTO>> GenerateTokenAsync(TokenType type, DateTime? date = null, CancellationToken ct = default);
+
+        /// <summary>
+        /// Sends every locally queued (unsynced) token to the backend, oldest first.
+        /// Safe to call at any time and from multiple places; runs are serialized.
+        /// Returns the number of tokens synced by this call.
+        /// </summary>
+        Task<int> SyncPendingAsync(CancellationToken ct = default);
+
+        /// <summary>
+        /// Number of tokens still waiting to be synced (excludes ones the backend permanently rejected).
+        /// </summary>
+        Task<int> GetPendingSyncCountAsync();
     }
 }

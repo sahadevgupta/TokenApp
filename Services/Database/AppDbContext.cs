@@ -15,6 +15,7 @@ namespace TokenApp.Services.Database
         private static AppDbContext _instance;
         private static readonly object _syncLock = new object();
         private SQLiteAsyncConnection _connection;
+        private Task? _initTask;
 
         private const string DatabaseFilename = "tokenapp.db3";
 
@@ -42,15 +43,34 @@ namespace TokenApp.Services.Database
         /// <summary>
         /// Initialize the database connection and create tables
         /// </summary>
-        public async Task InitializeAsync()
+        public Task InitializeAsync()
         {
-            if (_connection != null)
-                return;
+            // Cache the in-flight task so concurrent callers all wait for table creation
+            // instead of seeing a half-initialised connection.
+            lock (_syncLock)
+            {
+                return _initTask ??= Task.Run(InitializeCoreAsync);
+            }
+        }
 
-            _connection = new SQLiteAsyncConnection(DatabasePath);
+        private async Task InitializeCoreAsync()
+        {
+            try
+            {
+                _connection = new SQLiteAsyncConnection(DatabasePath);
 
-            // Create all tables if they don't exist
-            await CreateTablesAsync();
+                // Create all tables if they don't exist
+                await CreateTablesAsync();
+            }
+            catch
+            {
+                lock (_syncLock)
+                {
+                    _connection = null;
+                    _initTask = null;
+                }
+                throw;
+            }
         }
 
         /// <summary>
@@ -92,7 +112,11 @@ namespace TokenApp.Services.Database
             if (_connection != null)
             {
                 await _connection.CloseAsync();
-                _connection = null;
+                lock (_syncLock)
+                {
+                    _connection = null;
+                    _initTask = null;
+                }
             }
         }
 

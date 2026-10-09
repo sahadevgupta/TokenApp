@@ -34,7 +34,10 @@ namespace TokenApp.Services.Data
                 Location = dbToken.Location,
                 BatchNumber = dbToken.BatchNumber,
                 Escort = dbToken.Escort,
-                AvailableActions = dbToken.ActionsEnum
+                AvailableActions = dbToken.ActionsEnum,
+                RemoteId = dbToken.RemoteId,
+                IsSynced = dbToken.IsSynced,
+                SyncError = dbToken.SyncError
             };
         }
 
@@ -55,6 +58,9 @@ namespace TokenApp.Services.Data
                 BatchNumber = token.BatchNumber,
                 Escort = token.Escort,
                 ActionsEnum = token.AvailableActions,
+                RemoteId = token.RemoteId,
+                IsSynced = token.IsSynced,
+                SyncError = token.SyncError,
                 UpdatedAtDateTime = now
             };
         }

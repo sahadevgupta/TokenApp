@@ -5,16 +5,18 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:TokenApp"
     xmlns:views="clr-namespace:TokenApp.Views"
-    Title="TokenApp">
+    Title="TokenApp"
+    FlyoutBehavior="Disabled">
 
     <ShellContent
         Title="Home"
         ContentTemplate="{DataTemplate views:LoginPage}"
-        Route="MainPage" />
+        Route="MainPage"
+        Shell.NavBarIsVisible="False"/>
 
     <ShellContent
         Title="History/Queue"
         ContentTemplate="{DataTemplate views:TokenHistoryPage}"
-        Route="TokenHistory" />
+        Route="TokenHistory"/>
 
 </Shell>
