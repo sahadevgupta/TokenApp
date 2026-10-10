@@ -12,7 +12,9 @@ namespace TokenApp.Configurations.Mapper.Converters
                 LastRed = source.LastRed,
                 NextRed = source.NextRed,
                 LastYellow = source.LastYellow,
-                NextYellow = source.NextYellow
+                NextYellow = source.NextYellow,
+                LastEmergency = source.LastEmergency,
+                NextEmergency = source.NextEmergency
             };
         }
     }
@@ -26,6 +28,9 @@ namespace TokenApp.Configurations.Mapper.Converters
                 TotalTokens = source.TotalTokens,
                 PendingTokens = source.PendingTokens,
                 ApprovedTokens = source.ApprovedTokens,
+                RedTokens = source.RedTokens,
+                YellowTokens = source.YellowTokens,
+                EmergencyTokens = source.EmergencyTokens,
                 TodayStats = BackendToAppModelMapper.GetTodayStats(source.TodayStats),
                 Tokens = BackendToAppModelMapper.GetTokens(source.Tokens).ToList(),
                 Admins = BackendToAppModelMapper.GetAdmins(source.Admins).ToList()

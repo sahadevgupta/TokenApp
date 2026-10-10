@@ -1,260 +1,238 @@
+using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
 using TokenApp.Models;
+using TokenApp.Services.Api;
 using TokenApp.Services.Data;
 
 namespace TokenApp.ViewModels
 {
+    /// <summary>
+    /// Token history shown from the backend dashboard response: summary counts, today's token
+    /// numbers and the token list grouped by date, with search and type filtering done locally.
+    /// </summary>
     public partial class TokenHistoryViewModel : BaseViewModel
     {
+        private const string LoadFailedMessage = "Could not load tokens.";
+
+        private readonly ITokenApiService _api;
+        private readonly IAuthRepository _auth;
         private readonly ITokenRepository _tokenRepository;
 
-        [ObservableProperty]
-        ObservableCollection<TokenDTO> tokens = new();
+        private List<TokenDTO> _allTokens = new();
+        private int _isLoading;
 
         [ObservableProperty]
-        ObservableCollection<TokenDTO> filteredTokens = new();
+        [NotifyPropertyChangedFor(nameof(HasSummary))]
+        DashboardSummary? summary;
+
+        [ObservableProperty]
+        ObservableCollection<TokenGroup> tokenGroups = new();
 
         [ObservableProperty]
         string searchQuery = string.Empty;
 
         [ObservableProperty]
-        DateTime selectedDate = DateTime.Today;
+        string resultText = string.Empty;
 
         [ObservableProperty]
-        TokenType? selectedTokenType = null;
+        string emptyMessage = string.Empty;
 
         [ObservableProperty]
-        bool isSearching = false;
+        [NotifyPropertyChangedFor(nameof(HasError))]
+        string? errorMessage;
 
         [ObservableProperty]
-        int totalTokenCount = 0;
+        bool isRefreshing;
 
-        [ObservableProperty]
-        int yellowTokenCount = 0;
+        public bool HasSummary => Summary != null;
+        public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
-        [ObservableProperty]
-        int redTokenCount = 0;
+        public ObservableCollection<TokenFilterOption> FilterOptions { get; }
 
-        [ObservableProperty]
-        int emergencyTokenCount = 0;
-
-        public TokenHistoryViewModel(ITokenRepository tokenRepository)
+        public TokenHistoryViewModel(ITokenApiService api, IAuthRepository auth, ITokenRepository tokenRepository)
         {
+            _api = api ?? throw new ArgumentNullException(nameof(api));
+            _auth = auth ?? throw new ArgumentNullException(nameof(auth));
             _tokenRepository = tokenRepository ?? throw new ArgumentNullException(nameof(tokenRepository));
-            Title = "History/Queue";
-        }
+            Title = "Token History";
 
-        [RelayCommand]
-        public async Task LoadTokensAsync()
-        {
-            await RunBusyAsync(async () =>
+            FilterOptions = new ObservableCollection<TokenFilterOption>
             {
-                try
-                {
-                    var tokens = await _tokenRepository.GetAllTokensAsync();
+                new("All", null, SelectFilterCommand) { IsSelected = true },
+                new("Yellow", TokenType.Yellow, SelectFilterCommand),
+                new("Red", TokenType.Red, SelectFilterCommand),
+                new("Emergency", TokenType.Emergency, SelectFilterCommand)
+            };
+        }
 
-                    MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        Tokens.Clear();
-                        foreach (var token in tokens.OrderByDescending(t => t.DateTime))
-                        {
-                            Tokens.Add(token);
-                        }
-                    });
+        /// <summary>Called when the page appears: spinner only while there is nothing to show yet.</summary>
+        [RelayCommand]
+        private async Task LoadAsync()
+        {
+            if (HasSummary)
+            {
+                await FetchAsync();
+                return;
+            }
 
-                    // Load token counts
-                    await UpdateTokenCountsAsync();
-                    ApplyFilters();
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error loading tokens: {ex.Message}");
-                }
-            });
+            IsBusy = true;
+            try
+            {
+                await FetchAsync();
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        /// <summary>Pull-to-refresh and the error banner's Retry.</summary>
+        [RelayCommand]
+        private async Task RefreshAsync()
+        {
+            IsRefreshing = true;
+            try
+            {
+                await FetchAsync();
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
         }
 
         [RelayCommand]
-        public void SearchTokens()
+        private void SelectFilter(TokenFilterOption? option)
         {
+            if (option == null)
+                return;
+
+            foreach (var item in FilterOptions)
+                item.IsSelected = item == option;
+
             ApplyFilters();
         }
 
-        [RelayCommand]
-        public void ClearFilters()
+        [RelayCommand(AllowConcurrentExecutions = false)]
+        private async Task LogoutAsync()
         {
-            SelectedTokenType = null;
-            ApplyFilters();
-        }
+            var message = "You will need to sign in again to continue.";
 
-        [RelayCommand]
-        public void FilterAll()
-        {
-            SelectedTokenType = null;
-            ApplyFilters();
-        }
-
-        [RelayCommand]
-        public void FilterYellow()
-        {
-            SelectedTokenType = TokenType.Yellow;
-            ApplyFilters();
-        }
-
-        [RelayCommand]
-        public void FilterRed()
-        {
-            SelectedTokenType = TokenType.Red;
-            ApplyFilters();
-        }
-
-        [RelayCommand]
-        public void FilterEmergency()
-        {
-            SelectedTokenType = TokenType.Emergency;
-            ApplyFilters();
-        }
-
-        [RelayCommand]
-        public async Task ExportTokensAsync()
-        {
-            await RunBusyAsync(async () =>
+            var unsynced = await GetUnsyncedCountAsync();
+            if (unsynced > 0)
             {
-                try
-                {
-                    // TODO: Implement CSV export functionality
-                    // Export FilteredTokens to CSV
-                    await Task.Delay(500); // Simulate work
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error exporting tokens: {ex.Message}");
-                }
-            });
+                var noun = unsynced == 1 ? "token has" : "tokens have";
+                message = $"{unsynced} {noun} not been sent to the server yet. They will be sent the next time you sign in.";
+            }
+
+            var confirmed = await Shell.Current.DisplayAlertAsync("Log out?", message, "Log out", "Cancel");
+            if (!confirmed)
+                return;
+
+            await _auth.LogoutAsync();
+            ResetState();
+            await Shell.Current.GoToAsync("//MainPage");
         }
 
-        [RelayCommand]
-        public async Task PrintSummaryAsync()
-        {
-            await RunBusyAsync(async () =>
-            {
-                try
-                {
-                    // TODO: Implement print functionality
-                    await Task.Delay(500); // Simulate work
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error printing summary: {ex.Message}");
-                }
-            });
-        }
+        partial void OnSearchQueryChanged(string value) => ApplyFilters();
 
-        [RelayCommand]
-        public async Task ReprintTokenAsync(TokenDTO token)
+        private async Task FetchAsync()
         {
-            await RunBusyAsync(async () =>
-            {
-                try
-                {
-                    // TODO: Implement reprint functionality
-                    // Call printer service
-                    await Task.Delay(500);
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error reprinting token: {ex.Message}");
-                }
-            });
-        }
+            // Appearing and pull-to-refresh can overlap; one request at a time is enough.
+            if (Interlocked.Exchange(ref _isLoading, 1) == 1)
+                return;
 
-        [RelayCommand]
-        public async Task ShowTokenDetailsAsync(TokenDTO token)
-        {
-            await RunBusyAsync(async () =>
+            try
             {
-                try
+                var result = await _api.GetDashboardAsync();
+                if (result.IsSuccess && result.Data != null)
                 {
-                    // TODO: Navigate to token details page
-                    await Task.Delay(500);
+                    ErrorMessage = null;
+                    Summary = result.Data;
+                    _allTokens = result.Data.Tokens;
                 }
-                catch (Exception ex)
+                else
                 {
-                    System.Diagnostics.Debug.WriteLine($"Error showing token details: {ex.Message}");
+                    // Keep whatever is already on screen; just explain why it may be stale.
+                    ErrorMessage = string.IsNullOrWhiteSpace(result.Message) ? LoadFailedMessage : result.Message;
                 }
-            });
-        }
 
-        [RelayCommand]
-        public async Task EscortTokenAsync(TokenDTO token)
-        {
-            await RunBusyAsync(async () =>
+                ApplyFilters();
+            }
+            finally
             {
-                try
-                {
-                    // TODO: Implement escort functionality
-                    await Task.Delay(500);
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error escorting token: {ex.Message}");
-                }
-            });
+                Interlocked.Exchange(ref _isLoading, 0);
+            }
         }
 
         private void ApplyFilters()
         {
-            var query = Tokens.AsEnumerable();
+            var selectedType = FilterOptions.FirstOrDefault(o => o.IsSelected)?.Type;
+            var query = SearchQuery?.Trim() ?? string.Empty;
 
-            // Apply search filter
-            if (!string.IsNullOrWhiteSpace(SearchQuery))
-            {
-                var searchLower = SearchQuery.ToLower();
-                query = query.Where(t =>
-                    t.TokenNumber.ToString().Contains(SearchQuery) ||
-                    (!string.IsNullOrEmpty(t.Location) && t.Location.ToLower().Contains(searchLower)) ||
-                    (!string.IsNullOrEmpty(t.BatchNumber) && t.BatchNumber.ToLower().Contains(searchLower)) ||
-                    (!string.IsNullOrEmpty(t.Escort) && t.Escort.ToLower().Contains(searchLower)));
-            }
+            var matches = _allTokens.Where(t =>
+                (selectedType == null || t.Type == selectedType) &&
+                (query.Length == 0 || Matches(t, query)));
 
-            // Apply token type filter
-            if (SelectedTokenType.HasValue)
-            {
-                query = query.Where(t => t.Type == SelectedTokenType.Value);
-            }
+            var groups = matches
+                .GroupBy(t => t.DateTime.Date)
+                .OrderByDescending(g => g.Key)
+                .Select(g => new TokenGroup(
+                    g.Key,
+                    g.OrderByDescending(t => t.CreatedAt ?? t.DateTime).ThenByDescending(t => t.RemoteId)))
+                .ToList();
 
-            // Apply date filter
-            query = query.Where(t => t.DateTime.Date == SelectedDate.Date);
+            TokenGroups = new ObservableCollection<TokenGroup>(groups);
 
-            var filtered = query.OrderByDescending(t => t.DateTime).ToList();
+            var count = groups.Sum(g => g.Count);
+            ResultText = count == 1 ? "1 token" : $"{count} tokens";
 
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                FilteredTokens.Clear();
-                foreach (var token in filtered)
-                {
-                    FilteredTokens.Add(token);
-                }
-            });
+            EmptyMessage = !HasSummary
+                ? LoadFailedMessage
+                : _allTokens.Count == 0 ? "No tokens yet." : "No tokens match your search or filter.";
         }
 
-        private async Task UpdateTokenCountsAsync()
+        private static bool Matches(TokenDTO token, string query)
+        {
+            const StringComparison ignoreCase = StringComparison.OrdinalIgnoreCase;
+            var applicant = token.Applicant;
+
+            return token.TokenNumber.ToString(CultureInfo.InvariantCulture).Contains(query, ignoreCase)
+                || token.DateTime.ToString("dd-MM-yyyy", CultureInfo.InvariantCulture).Contains(query, ignoreCase)
+                || token.DateTime.ToString("dd MMM yyyy", CultureInfo.CurrentCulture).Contains(query, ignoreCase)
+                || (applicant != null
+                    && (applicant.Name.Contains(query, ignoreCase)
+                        || applicant.Mobile.Contains(query, ignoreCase)
+                        || applicant.City.Contains(query, ignoreCase)));
+        }
+
+        private async Task<int> GetUnsyncedCountAsync()
         {
             try
             {
-                TotalTokenCount = await _tokenRepository.GetTokenCountAsync();
-                YellowTokenCount = await _tokenRepository.GetTokenCountByTypeAsync(TokenType.Yellow);
-                RedTokenCount = await _tokenRepository.GetTokenCountByTypeAsync(TokenType.Red);
-                EmergencyTokenCount = await _tokenRepository.GetTokenCountByTypeAsync(TokenType.Emergency);
+                return await _tokenRepository.GetPendingSyncCountAsync();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error updating token counts: {ex.Message}");
+                // Only used to enrich the confirmation text; never block logging out.
+                System.Diagnostics.Debug.WriteLine($"Pending sync count failed: {ex.GetType().Name}");
+                return 0;
             }
+        }
+
+        /// <summary>Drops the signed-out admin's data so the next sign-in never flashes it.</summary>
+        private void ResetState()
+        {
+            _allTokens = new List<TokenDTO>();
+            Summary = null;
+            ErrorMessage = null;
+            SearchQuery = string.Empty;
+            foreach (var item in FilterOptions)
+                item.IsSelected = item.Type == null;
+
+            ApplyFilters();
         }
     }
 }

@@ -22,6 +22,29 @@ namespace TokenApp.Models.Response
 
         [JsonPropertyName("status")]
         public string? Status { get; set; }
+
+        /// <summary>ISO-8601 UTC timestamp; only present on dashboard tokens.</summary>
+        [JsonPropertyName("created_at")]
+        public string? CreatedAt { get; set; }
+
+        /// <summary>The person the token was issued to; only present on dashboard tokens.</summary>
+        [JsonPropertyName("user")]
+        public TokenUserDto? User { get; set; }
+    }
+
+    public class TokenUserDto
+    {
+        [JsonPropertyName("id")]
+        public int? Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+
+        [JsonPropertyName("mobile")]
+        public string? Mobile { get; set; }
+
+        [JsonPropertyName("city")]
+        public string? City { get; set; }
     }
 
     /// <summary>{ success, message, data: token } — generate-print-token and token/apply.</summary>

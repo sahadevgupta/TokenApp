@@ -4,7 +4,7 @@ namespace TokenApp.Views;
 
 public partial class TokenHistoryPage : ContentPage
 {
-    private TokenHistoryViewModel _viewModel;
+    private readonly TokenHistoryViewModel _viewModel;
 
     public TokenHistoryPage(TokenHistoryViewModel viewModel)
     {
@@ -17,10 +17,10 @@ public partial class TokenHistoryPage : ContentPage
     {
         base.OnAppearing();
 
-        // Load tokens when page appears
-        if (_viewModel.LoadTokensCommand.CanExecute(null))
+        // Fetch the latest dashboard whenever the page is shown (e.g. after signing in).
+        if (_viewModel.LoadCommand.CanExecute(null))
         {
-            await _viewModel.LoadTokensCommand.ExecuteAsync(null);
+            await _viewModel.LoadCommand.ExecuteAsync(null);
         }
     }
 }

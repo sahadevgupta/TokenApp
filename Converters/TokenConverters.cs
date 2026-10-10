@@ -69,7 +69,7 @@ namespace TokenApp.Converters
             {
                 return status switch
                 {
-                    TokenStatus.Given => "Token Given ✓",
+                    TokenStatus.Given => "Approved",
                     TokenStatus.SanctumEntry => "Sanctum Entry ✓",
                     TokenStatus.VipEscort => "VIP / Escort ✓",
                     TokenStatus.Pending => "Pending",
@@ -86,30 +86,46 @@ namespace TokenApp.Converters
     }
 
     /// <summary>
-    /// Converts TokenStatus enum to background color for status badge
+    /// Looks up a token-type color from Colors.xaml. ConverterParameter is the suffix:
+    /// "Accent" (bar/number), "Tint" (pill/tile background) or "Text" (text on the tint).
     /// </summary>
-    public class TokenStatusColorConverter : IValueConverter
+    public class TokenTypeColorConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is TokenStatus status)
-            {
-                return status switch
-                {
-                    TokenStatus.Given => Color.FromArgb("#00C853"), // Green
-                    TokenStatus.SanctumEntry => Color.FromArgb("#CC5500"), // Orange
-                    TokenStatus.VipEscort => Color.FromArgb("#6A1B9A"), // Purple
-                    TokenStatus.Pending => Color.FromArgb("#FFB300"), // Amber
-                    _ => Color.FromArgb("#666666") // Gray
-                };
-            }
-            return Color.FromArgb("#666666");
+            var type = value is TokenType t ? t : TokenType.Other;
+            return ResourceColors.Get($"Token{type}{parameter}");
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
+    }
+
+    /// <summary>
+    /// Looks up a status-badge color from Colors.xaml. ConverterParameter is "Tint" (default) or "Text".
+    /// </summary>
+    public class TokenStatusColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var name = value is TokenStatus.Given ? "Approved" : "Pending";
+            return ResourceColors.Get($"Status{name}{(parameter as string ?? "Tint")}");
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    internal static class ResourceColors
+    {
+        public static Color Get(string key) =>
+            Application.Current?.Resources.TryGetValue(key, out var value) == true && value is Color color
+                ? color
+                : Colors.Gray;
     }
 
     /// <summary>

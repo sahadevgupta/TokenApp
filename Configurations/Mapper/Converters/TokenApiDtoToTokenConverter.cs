@@ -18,6 +18,15 @@ namespace TokenApp.Configurations.Mapper.Converters
                 Type = TokenApiValueMapper.ToTokenType(source.TokenType),
                 DateTime = TokenApiValueMapper.ToDate(source.TokenDate),
                 Status = status,
+                CreatedAt = TokenApiValueMapper.ToLocalDateTime(source.CreatedAt),
+                Applicant = source.User == null
+                    ? null
+                    : new TokenApplicant
+                    {
+                        Name = source.User.Name?.Trim() ?? string.Empty,
+                        Mobile = source.User.Mobile?.Trim() ?? string.Empty,
+                        City = source.User.City?.Trim() ?? string.Empty
+                    },
                 IsSynced = true,
                 AvailableActions = status == TokenStatus.Given
                     ? TokenActions.Print | TokenActions.Reprint | TokenActions.Details

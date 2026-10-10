@@ -12,6 +12,9 @@ namespace TokenApp
         {
             InitializeComponent();
 
+            // The app is designed for the light theme only.
+            UserAppTheme = AppTheme.Light;
+
             _syncCoordinator = syncCoordinator;
             _syncCoordinator.Start();
 

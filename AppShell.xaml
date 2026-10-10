@@ -15,7 +15,7 @@
         Shell.NavBarIsVisible="False"/>
 
     <ShellContent
-        Title="History/Queue"
+        Title="Token History"
         ContentTemplate="{DataTemplate views:TokenHistoryPage}"
         Route="TokenHistory"/>
 

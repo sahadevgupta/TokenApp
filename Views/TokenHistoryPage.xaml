@@ -1,214 +1,349 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:TokenApp.Converters"
-             xmlns:system="clr-namespace:System;assembly=netstandard"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:controls="clr-namespace:TokenApp.Controls"
+             xmlns:converters="clr-namespace:TokenApp.Converters"
+             xmlns:models="clr-namespace:TokenApp.Models"
+             xmlns:vm="clr-namespace:TokenApp.ViewModels"
              x:Class="TokenApp.Views.TokenHistoryPage"
-             Title="History/Queue"
-             BackgroundColor="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray950}}">
+             x:DataType="vm:TokenHistoryViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{StaticResource PageBackground}"
+             Shell.BackgroundColor="{StaticResource White}"
+             Shell.ForegroundColor="{StaticResource BrandRed}"
+             Shell.TitleColor="{StaticResource PrimaryColor}">
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <local:TokenTypeNameConverter x:Key="TokenTypeNameConverter" />
-            <local:TokenTypeEmojiConverter x:Key="TokenTypeEmojiConverter" />
-            <local:TokenStatusNameConverter x:Key="TokenStatusNameConverter" />
-            <local:TokenStatusColorConverter x:Key="TokenStatusColorConverter" />
-            <local:TokenActionVisibilityConverter x:Key="TokenActionVisibilityConverter" />
-            <local:IsNotNullConverter x:Key="IsNotNullConverter" />
+            <converters:TokenTypeNameConverter x:Key="TokenTypeNameConverter"/>
+            <converters:TokenTypeColorConverter x:Key="TokenTypeColorConverter"/>
+            <converters:TokenStatusNameConverter x:Key="TokenStatusNameConverter"/>
+            <converters:TokenStatusColorConverter x:Key="TokenStatusColorConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="0">
-        <!-- Header Section -->
-        <VerticalStackLayout Grid.Row="0" Padding="16,12" Spacing="0" BackgroundColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource OffBlack}}">
-            <Label Text="श्री काला गोरा भैरव धाम" FontSize="16" FontFamily="SpaceGroteskSemibold" TextColor="{AppThemeBinding Light={StaticResource TokenYellow}, Dark={StaticResource TokenYellow}}" />
-            <Label Text="BHAIRAV DHAM COUNTER • HISTORY/QUEUE" FontSize="11" FontFamily="GeistRegular" TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray400}}" />
-        </VerticalStackLayout>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Logout"
+                     Command="{Binding LogoutCommand}"
+                     AutomationId="LogoutButton"/>
+    </ContentPage.ToolbarItems>
 
-        <!-- Main Content -->
-        <ScrollView Grid.Row="1" Padding="12,16,12,0">
-            <VerticalStackLayout Spacing="12">
-                <!-- Search and Date Filter Section -->
-                <HorizontalStackLayout Spacing="8" Margin="0,0,0,12">
-                    <Border Style="{StaticResource SearchBoxStyle}" HorizontalOptions="FillAndExpand">
-                        <Entry x:Name="SearchEntry"
-                               Style="{StaticResource SearchEntryStyle}"
-                               Placeholder="Search token # or date"
-                               Text="{Binding SearchQuery}"
-                               ReturnCommand="{Binding SearchTokensCommand}"/>
+    <RefreshView IsRefreshing="{Binding IsRefreshing}"
+                 Command="{Binding RefreshCommand}"
+                 RefreshColor="{StaticResource BrandRed}"
+                 BackgroundColor="{StaticResource PageBackground}">
+
+        <CollectionView ItemsSource="{Binding TokenGroups}"
+                        IsGrouped="True"
+                        SelectionMode="None"
+                        Margin="16,0"
+                        BackgroundColor="Transparent">
+
+            <!-- Everything above the list scrolls with it, so pull-to-refresh works from anywhere. -->
+            <CollectionView.Header>
+                <VerticalStackLayout Spacing="12"
+                        Padding="0,16,0,8">
+
+                    <!-- Temple title -->
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="श्री काला गोरा भैरव धाम"
+                               FontSize="20"
+                               FontFamily="SpaceGroteskBold"
+                               TextColor="{StaticResource BrandRedTitle}"/>
+                        <Label Text="Bhairav Dham counter • Token history"
+                               Style="{StaticResource TokenMetaStyle}"/>
+                    </VerticalStackLayout>
+
+                    <!-- Error banner (stale data stays visible underneath) -->
+                    <Border IsVisible="{Binding HasError}"
+                            BackgroundColor="{StaticResource BrandRedSoft}"
+                            Stroke="OrangeRed"
+                            StrokeShape="RoundRectangle 10"
+                            Padding="12">
+                        <Grid ColumnDefinitions="*,Auto"
+                                ColumnSpacing="12">
+                            <Label Text="{Binding ErrorMessage}"
+                                   FontSize="13"
+                                   TextColor="#B84B4B"
+                                   VerticalOptions="Center"/>
+                            <Button Grid.Column="1"
+                                    Text="Retry"
+                                    Style="{StaticResource OutlineButtonStyle}"
+                                    Command="{Binding RefreshCommand}"/>
+                        </Grid>
                     </Border>
-                    <Border Style="{StaticResource SearchBoxStyle}" WidthRequest="100">
-                        <DatePicker Date="{Binding SelectedDate}"
-                                    TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"
-                                    Format="dd-MM-yyyy"
-                                    FontFamily="GeistRegular"
-                                    FontSize="13"/>
-                    </Border>
-                    <Button Text="Today" 
-                            Command="{Binding ClearFiltersCommand}"
-                            Style="{StaticResource FilterChipStyle}"
-                            WidthRequest="70"
-                            Padding="8,6"/>
-                </HorizontalStackLayout>
 
-                <!-- Token Type Filter Chips -->
-                <HorizontalStackLayout Spacing="8" Margin="0,0,0,12">
-                    <Button x:Name="AllButton"
-                            Text="All (25)"
-                            Style="{StaticResource FilterChipStyle}"
-                            Command="{Binding FilterAllCommand}"
-                            Padding="14,6"/>
-                    <Button x:Name="YellowButton"
-                            Text="🟡 Yellow 16"
-                            Style="{StaticResource FilterChipStyle}"
-                            Command="{Binding FilterYellowCommand}"
-                            Padding="14,6"/>
-                    <Button x:Name="RedButton"
-                            Text="🔴 Red 7"
-                            Style="{StaticResource FilterChipStyle}"
-                            Command="{Binding FilterRedCommand}"
-                            Padding="14,6"/>
-                    <Button x:Name="EmergencyButton"
-                            Text="⚡ Emerg..."
-                            Style="{StaticResource FilterChipStyle}"
-                            Command="{Binding FilterEmergencyCommand}"
-                            Padding="14,6"/>
-                </HorizontalStackLayout>
+                    <!-- Summary counts from the API -->
+                    <Border IsVisible="{Binding HasSummary}"
+                            Style="{StaticResource SummaryCardStyle}">
+                        <VerticalStackLayout Spacing="14">
+                            <Grid ColumnDefinitions="*,*,*"
+                                    ColumnSpacing="8">
+                                <VerticalStackLayout Grid.Column="0"
+                                        Spacing="2">
+                                    <Label Text="{Binding Summary.TotalTokens}"
+                                            Style="{StaticResource SummaryValueStyle}"/>
+                                    <Label Text="Total"
+                                            Style="{StaticResource SummaryCaptionStyle}"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1"
+                                        Spacing="2">
+                                    <Label Text="{Binding Summary.ApprovedTokens}"
+                                           Style="{StaticResource SummaryValueStyle}"
+                                           TextColor="{StaticResource StatusApprovedText}"/>
+                                    <Label Text="Approved"
+                                            Style="{StaticResource SummaryCaptionStyle}"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="2"
+                                        Spacing="2">
+                                    <Label Text="{Binding Summary.PendingTokens}"
+                                           Style="{StaticResource SummaryValueStyle}"
+                                           TextColor="{StaticResource StatusPendingText}"/>
+                                    <Label Text="Pending"
+                                            Style="{StaticResource SummaryCaptionStyle}"/>
+                                </VerticalStackLayout>
+                            </Grid>
 
-                <!-- Token List -->
-                <CollectionView ItemsSource="{Binding FilteredTokens}"
-                                SelectionMode="Single"
-                                SelectionChangedCommand="{Binding ShowTokenDetailsCommand}"
-                                SelectionChangedCommandParameter="{Binding SelectedItem, Source={RelativeSource Self}}"
-                                Margin="0,0,0,16">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <!-- Token Card -->
-                            <Border Style="{StaticResource TokenCardStyle}">
-                                <Grid RowDefinitions="Auto,Auto,*,Auto" ColumnDefinitions="Auto,*" RowSpacing="8" ColumnSpacing="12">
-                                    <!-- Token Number (Left Side) -->
-                                    <Label Grid.Row="0" Grid.RowSpan="4" Grid.Column="0"
-                                           Text="{Binding TokenNumber, StringFormat='#{0}'}"
-                                           Style="{StaticResource TokenNumberStyle}"
-                                           VerticalOptions="Start"
-                                           WidthRequest="50"/>
+                            <BoxView HeightRequest="1"
+                                    BackgroundColor="{StaticResource LightGray}"/>
 
-                                    <!-- Token Type Label and DateTime (Top Right) -->
-                                    <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="8" HorizontalOptions="Fill">
-                                        <Label Text="{Binding Type, Converter={StaticResource TokenTypeNameConverter}}"
-                                               Style="{StaticResource TokenTypeLabelStyle}"
-                                               VerticalOptions="Center"
-                                               HorizontalOptions="StartAndExpand"/>
-                                        <Label Text="{Binding DateTime, StringFormat='{0:dd-MM-yyyy • hh:mm tt}'}"
-                                               Style="{StaticResource TokenDateTimeStyle}"
-                                               HorizontalOptions="End"
-                                               VerticalOptions="Center"/>
-                                    </HorizontalStackLayout>
-
-                                    <!-- Status Badge (Row 1) -->
-                                    <Border Grid.Row="1" Grid.Column="1"
-                                            Style="{StaticResource StatusBadgeStyle}"
-                                            BackgroundColor="{Binding Status, Converter={StaticResource TokenStatusColorConverter}}"
-                                            HorizontalOptions="Start">
-                                        <Label Text="{Binding Status, Converter={StaticResource TokenStatusNameConverter}}"
-                                               Style="{StaticResource StatusBadgeLabelStyle}"/>
-                                    </Border>
-
-                                    <!-- Location/Batch/Escort Info (Row 2) -->
-                                    <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="6">
-                                        <Label x:Name="LocationLabel"
-                                               Text="{Binding Location}"
-                                               Style="{StaticResource TokenInfoLabelStyle}"
-                                               IsVisible="{Binding Location, Converter={StaticResource IsNotNullConverter}}"/>
-
-                                        <Label x:Name="BatchLabel"
-                                               Text="{Binding BatchNumber}"
-                                               Style="{StaticResource TokenInfoLabelStyle}"
-                                               IsVisible="{Binding BatchNumber, Converter={StaticResource IsNotNullConverter}}"/>
-
-                                        <Label x:Name="EscortLabel"
-                                               Text="{Binding Escort}"
-                                               Style="{StaticResource TokenInfoLabelStyle}"
-                                               IsVisible="{Binding Escort, Converter={StaticResource IsNotNullConverter}}"/>
+                            <Grid ColumnDefinitions="*,*,*"
+                                    ColumnSpacing="8">
+                                <Border Grid.Column="0"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 10"
+                                        Padding="0,10"
+                                        BackgroundColor="{StaticResource TokenYellowTint}">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="{Binding Summary.YellowTokens}"
+                                               Style="{StaticResource SummaryValueStyle}"
+                                               FontSize="22"
+                                               TextColor="{StaticResource TokenYellowText}"/>
+                                        <Label Text="Yellow"
+                                                Style="{StaticResource SummaryCaptionStyle}"
+                                               TextColor="{StaticResource TokenYellowText}"/>
                                     </VerticalStackLayout>
+                                </Border>
+                                <Border Grid.Column="1"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 10"
+                                        Padding="0,10"
+                                        BackgroundColor="{StaticResource TokenRedTint}">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="{Binding Summary.RedTokens}"
+                                               Style="{StaticResource SummaryValueStyle}"
+                                               FontSize="22"
+                                               TextColor="{StaticResource TokenRedText}"/>
+                                        <Label Text="Red"
+                                                Style="{StaticResource SummaryCaptionStyle}"
+                                               TextColor="{StaticResource TokenRedText}"/>
+                                    </VerticalStackLayout>
+                                </Border>
+                                <Border Grid.Column="2"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 10"
+                                        Padding="0,10"
+                                        BackgroundColor="{StaticResource TokenEmergencyTint}">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="{Binding Summary.EmergencyTokens}"
+                                               Style="{StaticResource SummaryValueStyle}"
+                                               FontSize="22"
+                                               TextColor="{StaticResource TokenEmergencyText}"/>
+                                        <Label Text="Emergency"
+                                                Style="{StaticResource SummaryCaptionStyle}"
+                                               TextColor="{StaticResource TokenEmergencyText}"/>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
 
-                                    <!-- Action Buttons (Bottom Row) -->
-                                    <HorizontalStackLayout Grid.Row="3" Grid.Column="1" 
-                                                          Spacing="8" Margin="0,8,0,0">
-                                        <Button x:Name="ReprintButton"
-                                                Text="🖨 Reprint"
-                                                Style="{StaticResource ActionButtonStyle}"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ReprintTokenCommand}"
-                                                CommandParameter="{Binding .}"
-                                                IsVisible="{Binding AvailableActions, Converter={StaticResource TokenActionVisibilityConverter}, ConverterParameter='Reprint'}"/>
+                    <!-- Today's token numbers -->
+                    <Border IsVisible="{Binding HasSummary}"
+                            Style="{StaticResource SummaryCardStyle}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="Today's token numbers"
+                                    Style="{StaticResource SectionTitleStyle}"/>
+                            <Grid ColumnDefinitions="*,*,*"
+                                    ColumnSpacing="8">
+                                <VerticalStackLayout Grid.Column="0"
+                                        Spacing="2">
+                                    <Label Text="Yellow"
+                                            Style="{StaticResource SummaryCaptionStyle}"
+                                            TextColor="{StaticResource TokenYellowText}"/>
+                                    <Label Style="{StaticResource TokenMetaStyle}"
+                                            HorizontalTextAlignment="Center"
+                                           Text="{Binding Summary.TodayStats.LastYellow, StringFormat='Last {0}'}"/>
+                                    <Label Style="{StaticResource TokenPersonStyle}"
+                                            HorizontalTextAlignment="Center"
+                                           Text="{Binding Summary.TodayStats.NextYellow, StringFormat='Next {0}'}"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1"
+                                        Spacing="2">
+                                    <Label Text="Red"
+                                            Style="{StaticResource SummaryCaptionStyle}"
+                                            TextColor="{StaticResource TokenRedText}"/>
+                                    <Label Style="{StaticResource TokenMetaStyle}"
+                                            HorizontalTextAlignment="Center"
+                                           Text="{Binding Summary.TodayStats.LastRed, StringFormat='Last {0}'}"/>
+                                    <Label Style="{StaticResource TokenPersonStyle}"
+                                            HorizontalTextAlignment="Center"
+                                           Text="{Binding Summary.TodayStats.NextRed, StringFormat='Next {0}'}"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="2"
+                                        Spacing="2">
+                                    <Label Text="Emergency"
+                                            Style="{StaticResource SummaryCaptionStyle}"
+                                            TextColor="{StaticResource TokenEmergencyText}"/>
+                                    <Label Style="{StaticResource TokenMetaStyle}"
+                                            HorizontalTextAlignment="Center"
+                                           Text="{Binding Summary.TodayStats.LastEmergency, StringFormat='Last {0}'}"/>
+                                    <Label Style="{StaticResource TokenPersonStyle}"
+                                            HorizontalTextAlignment="Center"
+                                           Text="{Binding Summary.TodayStats.NextEmergency, StringFormat='Next {0}'}"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
 
-                                        <Button x:Name="DetailsButton"
-                                                Text="ℹ️ Details"
-                                                Style="{StaticResource ActionButtonStyle}"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ShowTokenDetailsCommand}"
-                                                CommandParameter="{Binding .}"
-                                                IsVisible="{Binding AvailableActions, Converter={StaticResource TokenActionVisibilityConverter}, ConverterParameter='Details'}"/>
+                    <!-- Search -->
+                    <Border Style="{StaticResource SearchBoxStyle}"
+                            HeightRequest="45">
+                        <controls:BorderlessEntry Style="{StaticResource SearchEntryStyle}"
+                                                  Placeholder="Search token #, name, mobile, city or date"
+                                                  Text="{Binding SearchQuery}"
+                                                  ReturnType="Search"
+                                                  ClearButtonVisibility="WhileEditing"
+                                                  SemanticProperties.Description="Search tokens"
+                                                  VerticalOptions="Center"/>
+                    </Border>
 
-                                        <Button x:Name="EscortButton"
-                                                Text="👥 Escort"
-                                                Style="{StaticResource ActionButtonStyle}"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EscortTokenCommand}"
-                                                CommandParameter="{Binding .}"
-                                                IsVisible="{Binding AvailableActions, Converter={StaticResource TokenActionVisibilityConverter}, ConverterParameter='Escort'}"/>
-                                    </HorizontalStackLayout>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </VerticalStackLayout>
-        </ScrollView>
+                    <!-- Type filter -->
+                    <ScrollView Orientation="Horizontal"
+                            HorizontalScrollBarVisibility="Never">
+                        <HorizontalStackLayout Spacing="8"
+                                BindableLayout.ItemsSource="{Binding FilterOptions}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:TokenFilterOption">
+                                    <Button Text="{Binding Label}"
+                                            Style="{StaticResource FilterChipStyle}"
+                                            Command="{Binding SelectCommand}"
+                                            CommandParameter="{Binding .}">
+                                        <Button.Triggers>
+                                            <DataTrigger TargetType="Button"
+                                                    Binding="{Binding IsSelected}"
+                                                    Value="True">
+                                                <Setter Property="BackgroundColor"
+                                                        Value="{StaticResource BrandRed}"/>
+                                                <Setter Property="BorderColor"
+                                                        Value="{StaticResource BrandRed}"/>
+                                                <Setter Property="TextColor"
+                                                        Value="{StaticResource White}"/>
+                                            </DataTrigger>
+                                        </Button.Triggers>
+                                    </Button>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </HorizontalStackLayout>
+                    </ScrollView>
 
-        <!-- Bottom Actions Section -->
-        <Border Grid.Row="2" 
-                BackgroundColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource OffBlack}}"
-                StrokeThickness="0"
-                Padding="12,12">
-            <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
-                <VerticalStackLayout HorizontalOptions="Center" Spacing="0">
-                    <Label Text="Tokens" FontSize="13" FontFamily="GeistMedium" TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}" HorizontalTextAlignment="Center"/>
-                    <Label Text="Distributed" FontSize="12" FontFamily="GeistRegular" TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray400}}" HorizontalTextAlignment="Center"/>
+                    <Label Text="{Binding ResultText}"
+                           IsVisible="{Binding HasSummary}"
+                           Style="{StaticResource TokenMetaStyle}"/>
                 </VerticalStackLayout>
-                <Label Text="25" FontSize="18" FontFamily="SpaceGroteskSemibold" TextColor="{AppThemeBinding Light={StaticResource TokenYellow}, Dark={StaticResource TokenYellow}}" VerticalOptions="Center"/>
-                <Label Text="Total" FontSize="12" FontFamily="GeistMedium" TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray400}}" VerticalOptions="Center"/>
-                <BoxView WidthRequest="1" Color="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray500}}"/>
-                <Button x:Name="SearchButton" 
-                        Text="🔍"
-                        Style="{StaticResource ActionButtonStyle}"
-                        Padding="8,4"
-                        FontSize="16"/>
-                <BoxView WidthRequest="1" Color="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray500}}"/>
-                <Button x:Name="CalendarButton"
-                        Text="📅"
-                        Style="{StaticResource ActionButtonStyle}"
-                        Padding="8,4"
-                        FontSize="16"/>
+            </CollectionView.Header>
 
-                <StackLayout Spacing="8" HorizontalOptions="EndAndExpand">
-                    <Button Text="📥 Export CSV" 
-                            Command="{Binding ExportTokensCommand}"
-                            TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"
-                            BackgroundColor="Transparent"
-                            FontSize="12"
-                            FontFamily="GeistRegular"
-                            Padding="8,4"
-                            MinimumHeightRequest="32"/>
-                    <Button Text="🖨 Print Summary" 
-                            Command="{Binding PrintSummaryCommand}"
-                            BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
-                            TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDarkText}}"
-                            FontSize="12"
-                            FontFamily="GeistRegular"
-                            CornerRadius="6"
-                            Padding="12,6"
-                            MinimumHeightRequest="32"/>
-                </StackLayout>
-            </HorizontalStackLayout>
-        </Border>
-    </Grid>
+            <!-- Date section header -->
+            <CollectionView.GroupHeaderTemplate>
+                <DataTemplate x:DataType="models:TokenGroup">
+                    <Grid ColumnDefinitions="*,Auto"
+                            Padding="2,10,2,6"
+                            BackgroundColor="{StaticResource PageBackground}">
+                        <Label Text="{Binding Title}"
+                                Style="{StaticResource SectionTitleStyle}"
+                                VerticalOptions="Center"/>
+                        <Label Grid.Column="1"
+                                Text="{Binding CountText}"
+                                Style="{StaticResource TokenMetaStyle}"
+                                VerticalOptions="Center"/>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.GroupHeaderTemplate>
+
+            <!-- Token card -->
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:TokenDTO">
+                    <Border Style="{StaticResource TokenCardStyle}">
+                        <Grid ColumnDefinitions="6,64,*">
+                            <!-- Type accent bar -->
+                            <BoxView Grid.Column="0"
+                                     BackgroundColor="{Binding Type, Converter={StaticResource TokenTypeColorConverter}, ConverterParameter='Accent'}"/>
+
+                            <Label Grid.Column="1"
+                                   Text="{Binding TokenNumber, StringFormat='#{0}'}"
+                                   Style="{StaticResource TokenNumberStyle}"
+                                   TextColor="{Binding Type, Converter={StaticResource TokenTypeColorConverter}, ConverterParameter='Text'}"
+                                   VerticalOptions="Center"/>
+
+                            <VerticalStackLayout Grid.Column="2"
+                                    Spacing="4"
+                                    Padding="0,12,12,12">
+                                <Grid ColumnDefinitions="*,Auto"
+                                        ColumnSpacing="8">
+                                    <Border StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 8"
+                                            Padding="8,3"
+                                            HorizontalOptions="Start"
+                                            BackgroundColor="{Binding Type, Converter={StaticResource TokenTypeColorConverter}, ConverterParameter='Tint'}">
+                                        <Label Text="{Binding Type, Converter={StaticResource TokenTypeNameConverter}}"
+                                               Style="{StaticResource StatusBadgeLabelStyle}"
+                                               TextColor="{Binding Type, Converter={StaticResource TokenTypeColorConverter}, ConverterParameter='Text'}"/>
+                                    </Border>
+                                    <Border Grid.Column="1"
+                                            Style="{StaticResource StatusBadgeStyle}"
+                                            BackgroundColor="{Binding Status, Converter={StaticResource TokenStatusColorConverter}}">
+                                        <Label Text="{Binding Status, Converter={StaticResource TokenStatusNameConverter}}"
+                                               Style="{StaticResource StatusBadgeLabelStyle}"
+                                               TextColor="{Binding Status, Converter={StaticResource TokenStatusColorConverter}, ConverterParameter='Text'}"/>
+                                    </Border>
+                                </Grid>
+
+                                <VerticalStackLayout Spacing="1"
+                                        IsVisible="{Binding HasApplicant}">
+                                    <Label Text="{Binding Applicant.Name}"
+                                            Style="{StaticResource TokenPersonStyle}"/>
+                                    <Label Text="{Binding Applicant.Details}"
+                                            Style="{StaticResource TokenMetaStyle}"/>
+                                </VerticalStackLayout>
+
+                                <Label Text="{Binding CreatedAtText}"
+                                        Style="{StaticResource TokenMetaStyle}"
+                                        FontSize="11"/>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="0,32"
+                        Spacing="8"
+                        HorizontalOptions="Center">
+                    <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                       IsVisible="{Binding IsBusy}"
+                                       Color="{StaticResource BrandRed}"/>
+                    <Label Text="{Binding EmptyMessage}"
+                           IsVisible="{Binding IsBusy, Converter={toolkit:InvertedBoolConverter}}"
+                           Style="{StaticResource TokenMetaStyle}"
+                           FontSize="14"
+                           HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.Footer>
+                <ContentView HeightRequest="24"/>
+            </CollectionView.Footer>
+        </CollectionView>
+    </RefreshView>
 </ContentPage>

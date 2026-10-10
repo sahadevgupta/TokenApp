@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<ResourceDictionary 
+<ResourceDictionary
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
@@ -27,24 +27,65 @@
     <Color x:Key="Gray900">#212121</Color>
     <Color x:Key="Gray950">#141414</Color>
 
-    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
-    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
-    <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}"/>
-    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}"/>
-    <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource Black}"/>
+    <SolidColorBrush x:Key="PrimaryBrush"
+                     Color="{StaticResource Primary}"/>
+    <SolidColorBrush x:Key="SecondaryBrush"
+                     Color="{StaticResource Secondary}"/>
+    <SolidColorBrush x:Key="TertiaryBrush"
+                     Color="{StaticResource Tertiary}"/>
+    <SolidColorBrush x:Key="WhiteBrush"
+                     Color="{StaticResource White}"/>
+    <SolidColorBrush x:Key="BlackBrush"
+                     Color="{StaticResource Black}"/>
 
-    <SolidColorBrush x:Key="Gray100Brush" Color="{StaticResource Gray100}"/>
-    <SolidColorBrush x:Key="Gray200Brush" Color="{StaticResource Gray200}"/>
-    <SolidColorBrush x:Key="Gray300Brush" Color="{StaticResource Gray300}"/>
-    <SolidColorBrush x:Key="Gray400Brush" Color="{StaticResource Gray400}"/>
-    <SolidColorBrush x:Key="Gray500Brush" Color="{StaticResource Gray500}"/>
-    <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
-    <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
-    <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+    <SolidColorBrush x:Key="Gray100Brush"
+                     Color="{StaticResource Gray100}"/>
+    <SolidColorBrush x:Key="Gray200Brush"
+                     Color="{StaticResource Gray200}"/>
+    <SolidColorBrush x:Key="Gray300Brush"
+                     Color="{StaticResource Gray300}"/>
+    <SolidColorBrush x:Key="Gray400Brush"
+                     Color="{StaticResource Gray400}"/>
+    <SolidColorBrush x:Key="Gray500Brush"
+                     Color="{StaticResource Gray500}"/>
+    <SolidColorBrush x:Key="Gray600Brush"
+                     Color="{StaticResource Gray600}"/>
+    <SolidColorBrush x:Key="Gray900Brush"
+                     Color="{StaticResource Gray900}"/>
+    <SolidColorBrush x:Key="Gray950Brush"
+                     Color="{StaticResource Gray950}"/>
 
     <Color x:Key="LightGray">#E0E0E0</Color>
     <Color x:Key="BorderColor">#D0D0D0</Color>
     <Color x:Key="PrimaryColor">#0E1826</Color>
+
+
+    <!-- Light palette (matches the Login page) -->
+    <Color x:Key="PageBackground">#F5F5F5</Color>
+    <Color x:Key="BrandRed">#B71C1C</Color>
+    <Color x:Key="BrandRedTitle">#C92A2A</Color>
+    <Color x:Key="BrandRedSoft">#FFF1EE</Color>
+    <Color x:Key="TextSecondary">#7C6A6A</Color>
+
+    <!-- Token type: Accent = bar/number, Tint = pill/tile background, Text = text on tint -->
+    <Color x:Key="TokenYellowAccent">#E0A800</Color>
+    <Color x:Key="TokenYellowTint">#FFF6D6</Color>
+    <Color x:Key="TokenYellowText">#7A5A00</Color>
+    <Color x:Key="TokenRedAccent">#DC143C</Color>
+    <Color x:Key="TokenRedTint">#FDECEF</Color>
+    <Color x:Key="TokenRedText">#A50E2D</Color>
+    <Color x:Key="TokenEmergencyAccent">#7B68EE</Color>
+    <Color x:Key="TokenEmergencyTint">#EFECFD</Color>
+    <Color x:Key="TokenEmergencyText">#4B3FA0</Color>
+    <Color x:Key="TokenOtherAccent">#919191</Color>
+    <Color x:Key="TokenOtherTint">#EEEEEE</Color>
+    <Color x:Key="TokenOtherText">#404040</Color>
+
+    <!-- Token status badge -->
+    <Color x:Key="StatusApprovedTint">#E3F5EA</Color>
+    <Color x:Key="StatusApprovedText">#17703A</Color>
+    <Color x:Key="StatusPendingTint">#FFF0CC</Color>
+    <Color x:Key="StatusPendingText">#8A5A00</Color>
 
     <!-- Token Type Colors -->
     <Color x:Key="TokenYellow">#FFD700</Color>
@@ -70,10 +111,22 @@
     <Color x:Key="CardBackgroundLight">#3A3D4A</Color>
 
     <!-- Brush versions for token colors -->
-    <SolidColorBrush x:Key="TokenYellowBrush" Color="{StaticResource TokenYellow}"/>
-    <SolidColorBrush x:Key="TokenRedBrush" Color="{StaticResource TokenRed}"/>
-    <SolidColorBrush x:Key="TokenEmergencyBrush" Color="{StaticResource TokenEmergency}"/>
-    <SolidColorBrush x:Key="StatusGivenBrush" Color="{StaticResource StatusGiven}"/>
-    <SolidColorBrush x:Key="StatusSanctumBrush" Color="{StaticResource StatusSanctum}"/>
-    <SolidColorBrush x:Key="StatusVipBrush" Color="{StaticResource StatusVip}"/>
+    <SolidColorBrush x:Key="TokenYellowBrush"
+                     Color="{StaticResource TokenYellow}"/>
+    <SolidColorBrush x:Key="TokenRedBrush"
+                     Color="{StaticResource TokenRed}"/>
+    <SolidColorBrush x:Key="TokenEmergencyBrush"
+                     Color="{StaticResource TokenEmergency}"/>
+    <SolidColorBrush x:Key="StatusGivenBrush"
+                     Color="{StaticResource StatusGiven}"/>
+    <SolidColorBrush x:Key="StatusSanctumBrush"
+                     Color="{StaticResource StatusSanctum}"/>
+    <SolidColorBrush x:Key="StatusVipBrush"
+                     Color="{StaticResource StatusVip}"/>
+
+    <Color x:Key="PrimaryTextColor">#1E293B</Color>
+    <Color x:Key="SecondaryTextColor">#64748B</Color>
+    <Color x:Key="MutedTextColor">#94A3B8</Color>
+    <Color x:Key="ErrorColor">#BA1A1A</Color>
+
 </ResourceDictionary>

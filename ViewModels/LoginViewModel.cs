@@ -33,6 +33,7 @@ namespace TokenApp.ViewModels
             if (result.IsSuccess && result.Data is not null)
             {
                 await sessionService.StartSessionAsync(result.Data.Token);
+                Password = null; // do not keep the password around once signed in
                 await Shell.Current.GoToAsync($"//TokenHistory");
             }
 

@@ -19,6 +19,15 @@ namespace TokenApp.Models.Response
         [JsonPropertyName("approved_tokens")]
         public int ApprovedTokens { get; set; }
 
+        [JsonPropertyName("red_tokens")]
+        public int RedTokens { get; set; }
+
+        [JsonPropertyName("yellow_tokens")]
+        public int YellowTokens { get; set; }
+
+        [JsonPropertyName("emergency_tokens")]
+        public int EmergencyTokens { get; set; }
+
         [JsonPropertyName("today_stats")]
         public TodayStatsDto? TodayStats { get; set; }
 
@@ -42,5 +51,11 @@ namespace TokenApp.Models.Response
 
         [JsonPropertyName("next_yellow")]
         public int NextYellow { get; set; }
+
+        [JsonPropertyName("last_emergency")]
+        public int LastEmergency { get; set; }
+
+        [JsonPropertyName("next_emergency")]
+        public int NextEmergency { get; set; }
     }
 }

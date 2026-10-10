@@ -37,6 +37,13 @@ namespace TokenApp.Configurations.Mapper
                 ? date
                 : default;
 
+        /// <summary>Parses an ISO-8601 UTC timestamp (e.g. created_at) into device local time.</summary>
+        public static DateTime? ToLocalDateTime(string? apiValue) =>
+            DateTimeOffset.TryParse(apiValue, System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.AssumeUniversal, out var value)
+                ? value.LocalDateTime
+                : null;
+
         public static string ToApiDate(DateTime date) =>
             date.ToString(ApiConstants.TokenDateFormat, System.Globalization.CultureInfo.InvariantCulture);
     }

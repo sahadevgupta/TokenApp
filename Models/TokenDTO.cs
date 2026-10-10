@@ -18,6 +18,12 @@ namespace TokenApp.Models
         public string? Escort { get; set; }
         public TokenActions AvailableActions { get; set; }
 
+        /// <summary>When the backend created the token (device local time); null for locally queued tokens.</summary>
+        public DateTime? CreatedAt { get; set; }
+
+        /// <summary>Person the token was issued to; only known for tokens loaded from the backend dashboard.</summary>
+        public TokenApplicant? Applicant { get; set; }
+
         /// <summary>Id assigned by the backend; null until the token has been synced.</summary>
         public int? RemoteId { get; set; }
 
@@ -31,6 +37,10 @@ namespace TokenApp.Models
         /// Computed property: format DateTime as "dd-MM-yyyy • hh:mm AM/PM"
         /// </summary>
         public string FormattedDateTime => DateTime.ToString("dd-MM-yyyy • hh:mm tt");
+
+        public bool HasApplicant => Applicant != null;
+
+        public string CreatedAtText => CreatedAt is { } created ? $"Created {created:dd MMM yyyy • hh:mm tt}" : string.Empty;
 
         /// <summary>
         /// Computed property: get the first relevant info (location, batch, or escort)
